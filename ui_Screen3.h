@@ -41,6 +41,7 @@ extern lv_obj_t * ui_Label13;
 extern lv_obj_t * ui_Image3;
 extern lv_obj_t * ui_Panel8;
 extern lv_obj_t * ui_timeVal2;
+extern lv_obj_t * ui_dateval;
 extern lv_obj_t * ui_Panel16;
 extern lv_obj_t * ui_Arc1;
 extern lv_obj_t * ui_VOC_Value;

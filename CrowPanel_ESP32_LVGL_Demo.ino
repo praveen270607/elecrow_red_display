@@ -68,13 +68,19 @@ static lv_color_t buf1[ screenWidth * screenHeight / 13 ];
 /**************************************************************/
 // const char* ssid = "colocation";
 // const char* password = "colocation";
-const char* ssid = "colocation";
-const char* password = "colocation";
-const char broker[] = "collocationstudy.kaatru.org";
+// const char* ssid = "colocation";
+// const char* password = "colocation";
+// const char broker[] = "collocationstudy.kaatru.org";
 //const char broker[] = "colocation.kaatru.org";
-int port = 1883;
-const char topic[] = "dev/SIN11";
+// int port = 1883;
+// const char topic[] = "dev/SIN11";
 //const char topic[] = "test";
+
+const char ssid[]     = "colocation";
+const char password[] = "colocation";
+const char broker[]   = "collocationstudy.kaatru.org";
+const int  port       = 1883;
+const char topic[]    = "dev/SIN11";
 
 /**************************************************************/
 // --- MQTT & WiFi Clients ---
@@ -82,6 +88,14 @@ const char topic[] = "dev/SIN11";
 WiFiClient wifiClient;
 MqttClient mqttClient(wifiClient);
 #define JSON_BUFFER_SIZE 512
+
+/* ---------- reconnect timing parameters ---------- */
+const unsigned long WIFI_RETRY_MS = 2000;   // 2 s back‑off
+const unsigned long MQTT_RETRY_MS = 5000;   // 5 s back‑off
+
+unsigned long lastWiFiAttempt  = 0;
+unsigned long lastMQTTAttempt  = 0;
+
 
 
 //_______________________
@@ -140,7 +154,7 @@ void onMqttMessage(int messageSize) {
 
   if (doc.containsKey("sPM1")) {
     float val = doc["sPM1"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     lv_arc_set_value(ui_pm1Arc, (int)val);
     char buf[16];
     snprintf(buf, sizeof(buf), "%.1f", val);
@@ -151,7 +165,7 @@ void onMqttMessage(int messageSize) {
 
   if (doc.containsKey("sPM2")) {
     float val = doc["sPM2"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     lv_arc_set_value(ui_pm25Arc, (int)val);
     char buf[16];
     snprintf(buf, sizeof(buf), "%.1f", val);
@@ -162,7 +176,7 @@ void onMqttMessage(int messageSize) {
 
   if (doc.containsKey("sPM4")) {
     float val = doc["sPM4"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     lv_arc_set_value(ui_pm4Arc, (int)val);
     char buf[16];
     snprintf(buf, sizeof(buf), "%.1f", val);
@@ -173,7 +187,7 @@ void onMqttMessage(int messageSize) {
 
    if (doc.containsKey("sPM10")) {
     float val = doc["sPM10"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     //lv_arc_set_value(ui_ArcPM, (int)val);
     lv_arc_set_value(ui_pm10Arc, (int)val);
     char buf[16];
@@ -185,7 +199,7 @@ void onMqttMessage(int messageSize) {
 
   if (doc.containsKey("sTemp")) {
     float val = doc["sTemp"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     lv_arc_set_value(ui_tempArc, (int)val);
     char buf[16];
     snprintf(buf, sizeof(buf), "%.1f", val);
@@ -196,7 +210,7 @@ void onMqttMessage(int messageSize) {
 
   if (doc.containsKey("k30Co2")) {
     float val = doc["k30Co2"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     //lv_arc_set_value(ui_ArcRH, (int)val);
     lv_arc_set_value(ui_Co2Arc, (int)val);
     char buf[16];
@@ -207,7 +221,7 @@ void onMqttMessage(int messageSize) {
 
    if (doc.containsKey("sVocI")) {
     float val = doc["sVocI"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     //lv_arc_set_value(ui_ArcRH, (int)val);
     lv_arc_set_value(ui_Arc1, (int)val);
     char buf[16];
@@ -218,7 +232,7 @@ void onMqttMessage(int messageSize) {
 
   if (doc.containsKey("co_ppb")) {
     float val = doc["co_ppb"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     //lv_arc_set_value(ui_ArcRH, (int)val);
     lv_arc_set_value(ui_CoArc, (int)val);
     char buf[16];
@@ -229,7 +243,7 @@ void onMqttMessage(int messageSize) {
 
   if (doc.containsKey("so2_ppb")) {
     float val = doc["so2_ppb"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     //lv_arc_set_value(ui_ArcRH, (int)val);
     lv_arc_set_value(ui_So2Arc, (int)val);
     char buf[16];
@@ -240,7 +254,7 @@ void onMqttMessage(int messageSize) {
 
   if (doc.containsKey("no2_ppb")) {
     float val = doc["no2_ppb"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     //lv_arc_set_value(ui_ArcRH, (int)val);
     lv_arc_set_value(ui_No2Arc, (int)val);
     char buf[16];
@@ -251,7 +265,7 @@ void onMqttMessage(int messageSize) {
 
   if (doc.containsKey("o3_ppb")) {
     float val = doc["o3_ppb"].as<float>();
-    Serial.println(val);
+    //Serial.println(val);
     //lv_arc_set_value(ui_ArcRH, (int)val);
     lv_arc_set_value(ui_O3Arc, (int)val);
     char buf[16];
@@ -263,7 +277,7 @@ void onMqttMessage(int messageSize) {
    if (doc.containsKey("rh")) {
     float val = doc["rh"].as<float>();
     lv_arc_set_value(ui_humArc, (int)val);
-    Serial.println(val);
+    //Serial.println(val);
     char buf[16];
     snprintf(buf, sizeof(buf), "%.1f", val);
     //lv_label_set_text(ui_LabelRH, buf);
@@ -276,43 +290,91 @@ void onMqttMessage(int messageSize) {
   //lv_chart_refresh(ui_Chart2);
   //Serial.println("came to end of the message fucntion");
 
+  // if (doc.containsKey("dTS")) {
+  //   unsigned long epochSeconds = doc["dTS"].as<unsigned long>();
+  //   struct tm* timeinfo = localtime((time_t*)&epochSeconds);
+  //   if (timeinfo) {
+  //     char timeBuf[16];
+  //     strftime(timeBuf, sizeof(timeBuf), "%H:%M:%S", timeinfo);
+  //     lv_label_set_text(ui_timeVal, timeBuf);
+  //     lv_label_set_text(ui_timeVal2, timeBuf);
+  //   }
+  // }
+
   if (doc.containsKey("dTS")) {
-    unsigned long epochSeconds = doc["dTS"].as<unsigned long>();
-    struct tm* timeinfo = localtime((time_t*)&epochSeconds);
-    if (timeinfo) {
-      char timeBuf[16];
-      strftime(timeBuf, sizeof(timeBuf), "%H:%M:%S", timeinfo);
-      lv_label_set_text(ui_timeVal, timeBuf);
-      lv_label_set_text(ui_timeVal2, timeBuf);
-    }
+  unsigned long epochSeconds = doc["dTS"].as<unsigned long>();
+  struct tm* timeinfo = localtime((time_t*)&epochSeconds);   // already gives you local TZ if you've called configTime()
+
+  if (timeinfo) {
+    /* ---------- TIME ---------- */
+    char timeBuf[16];                    // "HH:MM:SS\0"
+    strftime(timeBuf,  sizeof(timeBuf),  "%H:%M:%S", timeinfo);
+    lv_label_set_text(ui_timeVal,  timeBuf);
+    lv_label_set_text(ui_timeVal2, timeBuf);
+
+    /* ---------- DATE ---------- */
+    char dateBuf[16];                    // "14‑07‑2025\0"
+    strftime(dateBuf,  sizeof(dateBuf),  "%d-%m-%Y", timeinfo);
+    //lv_label_set_text(ui_dateVal, dateBuf);   // <‑‑ make ui_dateVal in your screen
+    lv_label_set_text(ui_dateVal2,  dateBuf);
+    lv_label_set_text(ui_dateval, dateBuf);
   }
+ }
+
+  }
+
+/* ---------- helper functions ---------- */
+void connectWiFi()
+{
+  Serial.print(F("\n[WiFi] connecting"));
+  WiFi.disconnect();                 // drop any half‑open sessions
+  WiFi.begin(ssid, password);
+
+  unsigned long t0 = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - t0 < 15000) {
+    lv_timer_handler();              // keep the GUI alive
+    Serial.print('.');
+    delay(100);
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.print(F(" ✔  IP="));
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println(F(" ✖  timeout"));
+  }
+}
+
+void connectMQTT()
+{
+  Serial.print(F("[MQTT] connecting"));
+  /* try a few times before giving up so we can return to loop() quickly */
+  for (uint8_t i = 0; i < 3 && !mqttClient.connected(); ++i) {
+    if (mqttClient.connect(broker, port)) {
+      mqttClient.subscribe(topic);
+      Serial.println(F(" ✔"));
+      return;
+    }
+    Serial.print(F(" ✖ "));
+    Serial.println(mqttClient.connectError());
+    delay(300);
+    lv_timer_handler();
+  }
+  Serial.println();  // move to new line after retries
 }
 
 
 void setup()
 {
-  Serial.begin( 9600 ); /*serial init */
+  Serial.begin(9600);
 
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to Wi-Fi...");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  connectWiFi();
+  if (WiFi.status() == WL_CONNECTED) {
+    connectMQTT();
   }
-  Serial.println(" connected");
 
+  /* any other one‑time setup ... */
   mqttClient.onMessage(onMqttMessage);
-  if (!mqttClient.connect(broker, port)) {
-    Serial.print("MQTT connection failed! Error code = ");
-    Serial.println(mqttClient.connectError());
-    while (1)
-      ;
-  }
-  Serial.println("Connected to MQTT broker");
-
-  mqttClient.subscribe(topic);
-  Serial.print("Subscribed to topic: ");
-  Serial.println(topic);
 
   //Port_D
   pinMode(25, OUTPUT);
@@ -336,7 +398,7 @@ void setup()
   /* Initialize the display */
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init( &disp_drv );
-  /* Change the following line to your display resolution hello */
+  /* Change the following line to your display resolution*/
   disp_drv.hor_res = screenWidth;
   disp_drv.ver_res = screenHeight;
   disp_drv.flush_cb = my_disp_flush;
@@ -361,7 +423,24 @@ void setup()
 
 void loop()
 {
-  mqttClient.poll();
+    /* 1. Ensure links are alive (non‑blocking) -------------------------- */
+  if (WiFi.status() != WL_CONNECTED &&
+      millis() - lastWiFiAttempt > WIFI_RETRY_MS) {
+    lastWiFiAttempt = millis();
+    connectWiFi();
+  }
+
+  if (WiFi.status() == WL_CONNECTED &&
+      !mqttClient.connected() &&
+      millis() - lastMQTTAttempt > MQTT_RETRY_MS) {
+    lastMQTTAttempt = millis();
+    connectMQTT();
+  }
+
+  /* 2. Normal “work” -------------------------------------------------- */
+  if (mqttClient.connected()) {
+    mqttClient.poll();               // keep‑alive + message handling
+  }
   lv_timer_handler();
   delay(5);
 }

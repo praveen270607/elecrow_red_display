@@ -38,6 +38,7 @@ extern lv_obj_t * ui_Label5;
 extern lv_obj_t * ui_Image1;
 extern lv_obj_t * ui_Panel15;
 extern lv_obj_t * ui_timeVal;
+extern lv_obj_t * ui_dateVal2;
 extern lv_obj_t * ui_Image5;
 extern void ui_event_Button1(lv_event_t * e);
 extern lv_obj_t * ui_Button1;
