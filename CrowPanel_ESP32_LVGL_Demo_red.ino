@@ -76,11 +76,17 @@ static lv_color_t buf1[ screenWidth * screenHeight / 13 ];
 // const char topic[] = "dev/SIN11";
 //const char topic[] = "test";
 
+/**************************************************************/
+// --- WiFi Credentials ---
 const char ssid[]     = "colocation";
 const char password[] = "colocation";
+/**************************************************************/
 const char broker[]   = "collocationstudy.kaatru.org";
 const int  port       = 1883;
+/**************************************************************/
+// --- Topic ---
 const char topic[]    = "dev/SIN11";
+/**************************************************************/
 
 /**************************************************************/
 // --- MQTT & WiFi Clients ---
